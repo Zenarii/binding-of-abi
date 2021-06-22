@@ -4,7 +4,8 @@
 
 enum {
     TILE_EMPTY,
-    TILE_ROCK,
+    TILE_BLOCKING,
+    TILE_ROCK = TILE_BLOCKING,
     TILE_WALL,
     
     TILE_COUNT

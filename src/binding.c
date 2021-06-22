@@ -17,6 +17,7 @@ struct core {
 
 // NOTE(Abi): Implementations
 #include "zenlib/zenlib.c"
+#include "physics.c"
 #include "sprite.c"
 #include "tears.c"
 #include "room.c"

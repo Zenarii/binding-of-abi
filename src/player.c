@@ -16,7 +16,7 @@ InitPlayer(player * Player) {
     Player->Body.Anim = (animation){10, 0, 0.15, 0};
     Player->Body.Texture = ZenLoadTextureFromPNG("player_body.png", 0);
     
-    Player->Position = v2(100, 100);
+    Player->Position = v2(250, 250);
     
     Player->EyeColour  = v4(0.f, 0.f, 0.f, 1.f);
     Player->SkinColour = v4(0.9, 0.75, 0.75, 1.f);
@@ -39,9 +39,39 @@ DoPlayer(player * Player) {
     Direction.x *= PLAYER_SPEED * Platform->Delta;
     Direction.y *= PLAYER_SPEED * Platform->Delta;
     
-    // TODO(abiab) Collisions
+    //
+    // ~Collisions
+    //
+    v2 PotentialPosition = AddV2(Player->Position, Direction);
+    v4 PlayerRect = v4(PotentialPosition.x - PLAYER_SIZE * 0.5,
+                       PotentialPosition.y - PLAYER_SIZE * 0.5,
+                       PLAYER_SIZE, PLAYER_SIZE);
     
-    Player->Position = AddV2(Player->Position, Direction);
+    if(AttemptMove(PlayerRect)) 
+        Player->Position = PotentialPosition;
+    else {
+        if(Direction.x) {
+            f32 PrevY = Direction.y;
+            Direction.y = 0;
+            v2 PotentialPosition = AddV2(Player->Position, Direction);
+            v4 PlayerRect = v4(PotentialPosition.x - PLAYER_SIZE * 0.5,
+                               PotentialPosition.y - PLAYER_SIZE * 0.5,
+                               PLAYER_SIZE, PLAYER_SIZE);
+            if(AttemptMove(PlayerRect)) 
+                Player->Position = PotentialPosition;
+            
+            if(PrevY) {
+                Direction.y = PrevY;
+                Direction.x = 0;
+                v2 PotentialPosition = AddV2(Player->Position, Direction);
+                v4 PlayerRect = v4(PotentialPosition.x - PLAYER_SIZE * 0.5,
+                                   PotentialPosition.y - PLAYER_SIZE * 0.5,
+                                   PLAYER_SIZE, PLAYER_SIZE);
+                if(AttemptMove(PlayerRect)) 
+                    Player->Position = PotentialPosition;
+            }
+        }
+    }
     
     //
     // ~Tears
