@@ -15,7 +15,14 @@ AddTear(tear * Tear) {
 internal b32
 RemoveTear(i32 index) {
     tear_pool * TearPool = &Platform->Core->TearPool;
-    Log("Removing tear %d/%d", index, TearPool->ActiveTears);
+    
+    {
+        TearPool->DyingTears[TearPool->ActiveDyingTears] = TearPool->Tears[index];
+        TearPool->DyingTears[TearPool->ActiveDyingTears].TimeAlive = 0;
+        TearPool->DyingTears[TearPool->ActiveDyingTears].LifeSpan  = 0.2;
+        TearPool->ActiveDyingTears++;
+    }
+    
     if(index == 0 && TearPool->ActiveTears == 1) {
         TearPool->ActiveTears = 0;
         return 1;
@@ -51,12 +58,18 @@ TearsBeginFrame() {
             
             for(int x = 0; x < ROOM_WIDTH; ++x) {
                 for(int y = 0; y < ROOM_HEIGHT; ++y) {
-                    if(Platform->Core->CurrentRoom.Tiles[x + y * ROOM_WIDTH] < TILE_BLOCKING) continue;
+                    i32 TileIndex = x + y * ROOM_WIDTH;
+                    i32 * Tile = &Platform->Core->CurrentRoom.Tiles[TileIndex];
+                    if(*Tile < TILE_TEAR_BLOCKING) continue;
                     
                     v4 TileRect = v4(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    // NOTE(abi): if collision occurs
                     if(AABBCollision(TearRect, TileRect)) {
-                        if(RemoveTear(i)) goto NoMoreTears;
+                        if(*Tile == TILE_POOP)         *Tile = TILE_POOP_S2;
+                        else if(*Tile == TILE_POOP_S2) *Tile = TILE_POOP_S3;
+                        else if(*Tile == TILE_POOP_S3) *Tile = TILE_BROKEN_POOP;
                         
+                        if(RemoveTear(i)) goto NoMoreTears;
                     }
                 }
             }
@@ -84,5 +97,20 @@ TearsEndFrame() {
                             Tear->Position.y - TEAR_SIZE * 0.5,
                             TEAR_SIZE, TEAR_SIZE);
         Zen2DPushTextureRectTint(Destination, Platform->Core->TearSprites[Tear->Type], v4(0, 0, 100, 100), Tear->Colour);
+    }
+    
+    for(i32 i = 0; i < TearPool->ActiveDyingTears; ++i) {
+        tear * Tear = &TearPool->DyingTears[i];
+        Tear->TimeAlive += Platform->Delta;
+        if(Tear->TimeAlive > Tear->LifeSpan) {
+            TearPool->DyingTears[i] = TearPool->DyingTears[--TearPool->ActiveDyingTears];
+        }
+        
+        i32 Frame = Tear->TimeAlive > 0.1 ? 2 : 1;
+        
+        v4 Destination = v4(Tear->Position.x - TEAR_SIZE * 0.5,
+                            Tear->Position.y - TEAR_SIZE * 0.5,
+                            TEAR_SIZE, TEAR_SIZE);
+        Zen2DPushTextureRectTint(Destination, Platform->Core->TearSprites[Tear->Type], v4(100 * Frame, 0, 100, 100), Tear->Colour);
     }
 }

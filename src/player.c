@@ -16,7 +16,7 @@ InitPlayer(player * Player) {
     Player->Body.Anim = (animation){10, 0, 0.15, 0};
     Player->Body.Texture = ZenLoadTextureFromPNG("player_body.png", 0);
     
-    Player->Position = v2(250, 250);
+    Player->Position = v2(128 * ROOM_WIDTH * 0.5, 128 * ROOM_HEIGHT * 0.5);
     
     Player->EyeColour  = v4(0.f, 0.f, 0.f, 1.f);
     Player->SkinColour = v4(0.9, 0.75, 0.75, 1.f);
@@ -65,6 +65,7 @@ DoPlayer(player * Player) {
             }
             else if(PrevY) {
                 Direction.y = PrevY;
+                f32 PrevX = Direction.x;
                 Direction.x = 0;
                 v2 PotentialPosition = AddV2(Player->Position, Direction);
                 v4 PlayerRect = v4(PotentialPosition.x - PLAYER_SIZE * 0.5,
@@ -72,6 +73,7 @@ DoPlayer(player * Player) {
                                    PLAYER_SIZE, PLAYER_SIZE);
                 if(AttemptMove(PlayerRect)) 
                     Player->Position = PotentialPosition;
+                Direction.x = PrevX;
             }
         }
     }
@@ -87,8 +89,11 @@ DoPlayer(player * Player) {
         if(ZenKeyDown(KEY_RIGHT)) TearDirection.x += 1;
         
         if(TearDirection.x && TearDirection.y) TearDirection.y = 0;
-        if(TearDirection.x != 0 || TearDirection.y != 0)
-            TearDirection = NormaliseV2(TearDirection);
+        if(TearDirection.x != 0 || TearDirection.y != 0) {
+            v2 TearDirectionPrime = AddV2(V2Scale(Direction, 1.f/Platform->Delta),
+                                          V2Scale(TearDirection, TEAR_SPEED));
+            TearDirection = NormaliseV2(TearDirectionPrime);
+        }
     }
     
     local b32 ShootFromLeftEye = 1;

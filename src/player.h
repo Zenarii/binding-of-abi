@@ -1,4 +1,5 @@
 #define PLAYER_SPEED 200
+// TODO(abi) fix the fact player cannot fit through one block gaps
 #define PLAYER_SIZE 128
 #define PLAYER_TEAR_DELAY 0.7
 

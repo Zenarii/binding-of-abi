@@ -13,6 +13,11 @@ struct core {
     
     room CurrentRoom;
     texture DummyTexture;
+    texture RockTexture;
+    texture PoopTexture;
+    texture PoopTextureS2;
+    texture PoopTextureS3;
+    texture BrokenPoopTexture;
     
     font DebugFont;
 };
@@ -39,7 +44,12 @@ AppInit() {
     
     InitPlayer(&Platform->Core->Player);
     
-    Platform->Core->DummyTexture = ZenLoadTextureFromPNG("dummy.png", 0);
+    Platform->Core->DummyTexture   = ZenLoadTextureFromPNG("dummy.png", 0);
+    Platform->Core->RockTexture    = ZenLoadTextureFromPNG("rock.png", 0);
+    Platform->Core->PoopTexture    = ZenLoadTextureFromPNG("poop.png", 0);
+    Platform->Core->PoopTextureS2  = ZenLoadTextureFromPNG("poop_stage_2.png", 0);
+    Platform->Core->PoopTextureS3  = ZenLoadTextureFromPNG("poop_stage_3.png", 0);
+    Platform->Core->BrokenPoopTexture = ZenLoadTextureFromPNG("broken_poop.png", 0);
     InitRoom(&Platform->Core->CurrentRoom);
     
     Platform->Core->TearSprites[TEAR_DEFAULT] = ZenLoadTextureFromPNG("tear.png", 0);
@@ -59,12 +69,6 @@ AppUpdate() {
     }
     DoPlayer(&Platform->Core->Player);
     TearsEndFrame();
-    
-    
-    
-    char Buffer[64] = {0};
-    sprintf(Buffer, "Active Tears: %d", Platform->Core->TearPool.ActiveTears);
-    Zen2DPushText(Buffer, v2(0, 0), 20);
 }
 
 internal void

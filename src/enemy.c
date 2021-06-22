@@ -55,7 +55,6 @@ DoEnemy(enemy * Enemy) {
         }
     }
     
-    
     v4 Colour = v4(1.f, 1.f, 1.f, 1.f);
     if(Enemy->TimeSinceHit < 0.5) {
         Colour.y = 0.5 + Enemy->TimeSinceHit;

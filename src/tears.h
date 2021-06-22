@@ -29,6 +29,8 @@ struct tear {
 
 typedef struct tear_pool tear_pool;
 struct tear_pool {
-    tear Tears[MAX_TEARS];
     i32 ActiveTears;
+    tear Tears[MAX_TEARS];
+    i32 ActiveDyingTears;
+    tear DyingTears[MAX_TEARS];
 };
