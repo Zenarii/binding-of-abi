@@ -22,6 +22,10 @@ InitRoom(room * Room) {
             } break;
         }
     }
+    Room->ActiveEnemies = 1;
+    Room->Enemies[0].Position = v2(400, 400);
+    Room->Enemies[0].Sprite = (sprite){128, 128, 128, 128};
+    Room->Enemies[0].Sprite.Texture = Platform->Core->DummyTexture;
 }
 
 internal void

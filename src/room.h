@@ -15,5 +15,6 @@ typedef struct room room;
 struct room {
     //b32 Door[4];
     i32 Tiles[ROOM_HEIGHT * ROOM_WIDTH];
-    
+    i32 ActiveEnemies;
+    enemy Enemies[MAX_ENEMIES];
 };

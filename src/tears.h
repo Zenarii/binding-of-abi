@@ -1,3 +1,6 @@
+// TODO(abi): fix issues with removing tears
+// TODO(abi): collision masks
+
 #define TEAR_SPEED 300
 #define MAX_TEARS 100
 #define TEAR_SIZE 30
@@ -16,6 +19,7 @@ typedef struct tear tear;
 struct tear {
     i32 Type;
     v2 Position;
+    v4 Hitbox;
     v2 Direction;
     f32 Speed;
     f32 TimeAlive;

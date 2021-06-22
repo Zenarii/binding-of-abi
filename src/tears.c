@@ -27,14 +27,14 @@ RemoveTear(i32 index) {
 
 // IDEA(abiab) maybe take pointer and have multiple tear pools for collisions???
 internal void
-DoTears() {
+TearsBeginFrame() {
     tear_pool * TearPool = &Platform->Core->TearPool;
     for(i32 i = 0; i < TearPool->ActiveTears; ++i) {
         tear * Tear = &TearPool->Tears[i];
         
         Tear->TimeAlive += Platform->Delta;
         if(Tear->TimeAlive > Tear->LifeSpan) {
-            if(RemoveTear(i)) break;
+            if(RemoveTear(i)) goto NoMoreTears;
         }
         
         Tear->Position.x += Tear->Direction.x * Tear->Speed * Platform->Delta;
@@ -42,10 +42,12 @@ DoTears() {
         
         // NOTE(abiab): Collisions
         // TODO(abi): time this, super inefficient method
+        // also add masks here
         {
             v4 TearRect = v4(Tear->Position.x - TEAR_SIZE * 0.5f,
                              Tear->Position.y - TEAR_SIZE * 0.5f,
                              TEAR_SIZE, TEAR_SIZE);
+            Tear->Hitbox = TearRect;
             
             for(int x = 0; x < ROOM_WIDTH; ++x) {
                 for(int y = 0; y < ROOM_HEIGHT; ++y) {
@@ -53,11 +55,30 @@ DoTears() {
                     
                     v4 TileRect = v4(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
                     if(AABBCollision(TearRect, TileRect)) {
-                        if(RemoveTear(i)) break;
+                        if(RemoveTear(i)) goto NoMoreTears;
+                        
                     }
                 }
             }
         }
+    }
+    
+    NoMoreTears:;
+}
+
+internal void
+TearsEndFrame() {
+    tear_pool * TearPool = &Platform->Core->TearPool;
+    for(i32 i = 0; i < TearPool->ActiveTears; ++i) {
+        tear * Tear = &TearPool->Tears[i];
+        
+        for(i32 i = 0; i < Platform->Core->CurrentRoom.ActiveEnemies; ++i) {
+            enemy * Enemy = &Platform->Core->CurrentRoom.Enemies[i];
+            if(AABBCollision(Tear->Hitbox, Enemy->Hitbox)) {
+                if(RemoveTear(i)) break;
+            }
+        }
+        
         
         v4 Destination = v4(Tear->Position.x - TEAR_SIZE * 0.5,
                             Tear->Position.y - TEAR_SIZE * 0.5,

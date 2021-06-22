@@ -2,6 +2,7 @@
 #include "zenlib/zenlib.h"
 #include "sprite.h"
 #include "tears.h"
+#include "enemy.h"
 #include "room.h"
 #include "player.h"
 
@@ -11,6 +12,7 @@ struct core {
     texture TearSprites[TEAR_TYPE_COUNT];
     
     room CurrentRoom;
+    texture DummyTexture;
     
     font DebugFont;
 };
@@ -21,6 +23,7 @@ struct core {
 #include "sprite.c"
 #include "tears.c"
 #include "room.c"
+#include "enemy.c"
 #include "player.c"
 
 enum directions {
@@ -35,6 +38,8 @@ AppInit() {
     Platform->Core = MemoryArenaAlloc(&Platform->PermenantArena, sizeof(core));
     
     InitPlayer(&Platform->Core->Player);
+    
+    Platform->Core->DummyTexture = ZenLoadTextureFromPNG("dummy.png", 0);
     InitRoom(&Platform->Core->CurrentRoom);
     
     Platform->Core->TearSprites[TEAR_DEFAULT] = ZenLoadTextureFromPNG("tear.png", 0);
@@ -46,8 +51,16 @@ AppInit() {
 internal void
 AppUpdate() {
     DrawRoom(&Platform->Core->CurrentRoom);
+    TearsBeginFrame();
+    // TODO DoEnemies();
+    room * Room = &Platform->Core->CurrentRoom;
+    for(i32 i = 0; i < Room->ActiveEnemies; ++i) {
+        DoEnemy(&Room->Enemies[0]);
+    }
     DoPlayer(&Platform->Core->Player);
-    DoTears();
+    TearsEndFrame();
+    
+    
     
     char Buffer[64] = {0};
     sprintf(Buffer, "Active Tears: %d", Platform->Core->TearPool.ActiveTears);

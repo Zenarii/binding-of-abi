@@ -47,8 +47,10 @@ DoPlayer(player * Player) {
                        PotentialPosition.y - PLAYER_SIZE * 0.5,
                        PLAYER_SIZE, PLAYER_SIZE);
     
-    if(AttemptMove(PlayerRect)) 
+    if(AttemptMove(PlayerRect)) {
         Player->Position = PotentialPosition;
+        Player->Hitbox   = PlayerRect;
+    }
     else {
         if(Direction.x) {
             f32 PrevY = Direction.y;
@@ -57,10 +59,11 @@ DoPlayer(player * Player) {
             v4 PlayerRect = v4(PotentialPosition.x - PLAYER_SIZE * 0.5,
                                PotentialPosition.y - PLAYER_SIZE * 0.5,
                                PLAYER_SIZE, PLAYER_SIZE);
-            if(AttemptMove(PlayerRect)) 
+            if(AttemptMove(PlayerRect)) {
                 Player->Position = PotentialPosition;
-            
-            if(PrevY) {
+                Player->Hitbox   = PlayerRect;
+            }
+            else if(PrevY) {
                 Direction.y = PrevY;
                 Direction.x = 0;
                 v2 PotentialPosition = AddV2(Player->Position, Direction);

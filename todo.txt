@@ -1,0 +1,6 @@
+Have a map struct with rooms, their links etc.
+
+upon entering a room, load it into current room.
+current room != room currently in, so that enemies respawn when you leave and re-enter a room
+
+this allows the easy use of an array of active enemies somewhat seperate from the room itself

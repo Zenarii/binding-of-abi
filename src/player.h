@@ -14,5 +14,7 @@ struct player {
     v4 SkinColour;
     v4 EyeColour;
     v4 TearColour;
+    
+    v4 Hitbox;
 };
 
